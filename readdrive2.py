@@ -40,7 +40,7 @@ SCOPES = ['https://www.googleapis.com/auth/drive']
 # 0 * * * * /home/pi/Projects/py-drive/readdrive2.py >> /home/pi/Projects/py-drive/drive-run.log 2>&1
 # cat /var/log/syslog
 
-
+from datetime import datetime
 import glob
 import os
 import io
@@ -54,6 +54,16 @@ import shutil
 
 
 def downloadfile(drive_service,file_id,new_name):
+    nasppath = r"/media/pidrive/nas-1tb/pyuploads/"
+    tdate = datetime.today().strftime('%Y-%m-%d')
+
+    naspath = nasppath + tdate + '/'
+    # Check whether the specified path exists or not
+    if not os.path.exists(naspath):
+        # Create a new directory because it does not exist
+        os.makedirs(naspath)
+        app_log.debug("The new directory is created!")
+
     app_log.debug(f'Into download function for {new_name}')
     request = drive_service.files().get_media(fileId=file_id)
     #fh = io.BytesIO() # this can be used to keep in memory
@@ -66,7 +76,7 @@ def downloadfile(drive_service,file_id,new_name):
         print("Download %d%%." % int(status.progress() * 100))
     if done:
         src_path = new_file
-        dst_path = r"/media/pidrive/nas-1tb/pyuploads/" + new_name
+        dst_path = naspath + new_name
         shutil.copy(src_path, dst_path)
         print('Copied')
         os.remove(new_file)
