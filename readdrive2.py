@@ -9,14 +9,29 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 
 import logging
-logging.basicConfig(filename='run.log', encoding='utf-8',\
-                     level=logging.DEBUG, \
-                     format='%(levelname)s: %(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p' \
-                    )
-logging.debug('This message should go to the log file')
-logging.info('So should this')
-logging.warning('And this, too')
-logging.error('And non-ASCII stuff, too, like Øresund and Malmö')
+from logging.handlers import RotatingFileHandler
+
+log_formatter = logging.Formatter('%(asctime)s %(levelname)s %(funcName)s(%(lineno)d) %(message)s',
+                                    datefmt='%m/%d/%Y %I:%M:%S %p')
+logFile = 'run.log'
+
+#logging.basicConfig(filename='run.log', encoding='utf-8',\
+#                     level=logging.DEBUG, \
+#                     format='%(levelname)s: %(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p' \
+#                    )
+# https://stackoverflow.com/questions/24505145/how-to-limit-log-file-size-in-python
+
+my_handler = RotatingFileHandler(logFile, mode='a', maxBytes=5*1024*1024, 
+                                 backupCount=2, encoding=None, delay=0)
+my_handler.setFormatter(log_formatter)
+my_handler.setLevel(logging.INFO)
+
+app_log = logging.getLogger('root')
+app_log.setLevel(logging.DEBUG)
+
+app_log.addHandler(my_handler)
+
+
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/drive']
@@ -39,7 +54,7 @@ import shutil
 
 
 def downloadfile(drive_service,file_id,new_name):
-    logging.debug(f'Into download function for {new_name}')
+    app_log.debug(f'Into download function for {new_name}')
     request = drive_service.files().get_media(fileId=file_id)
     #fh = io.BytesIO() # this can be used to keep in memory
     new_file = 'data/' + new_name
@@ -55,7 +70,7 @@ def downloadfile(drive_service,file_id,new_name):
         shutil.copy(src_path, dst_path)
         print('Copied')
         os.remove(new_file)
-        logging.info(f'Completed download and move for {new_name}')
+        app_log.info(f'Completed download and move for {new_name}')
 
 
 def main():
@@ -70,7 +85,7 @@ def main():
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
-        logging.warning('No creds or expired')
+        app_log.warning('No creds or expired')
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
@@ -80,7 +95,7 @@ def main():
         # Save the credentials for the next run
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
-        logging.info('token generated')
+        app_log.info('token generated')
 
  
     try:
@@ -102,20 +117,20 @@ def main():
 
         if not items:
             print('No files found.')
-            logging.info('No Files found')
+            app_log.info('No Files found')
             return
         print('Files:')
         for item in items:
             print(u'{0} ({1})'.format(item['name'], item['id']))
             downloadfile(service,item['id'],item['name'])
             service.files().delete(fileId=item['id']).execute()
-            logging.info(f"Deleted {item['name']} from drive")
-        logging.info(f'Completed Page Size of {pageSize}')
+            app_log.info(f"Deleted {item['name']} from drive")
+        app_log.info(f'Completed Page Size of {pageSize}')
 
     except HttpError as error:
         # TODO(developer) - Handle errors from drive API.
         print(f'An error occurred: {error}')
-        logging.error('Error occured')
+        app_log.error('Error occured')
 
 
 if __name__ == '__main__':
