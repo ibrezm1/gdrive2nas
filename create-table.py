@@ -36,6 +36,7 @@ for root, dirs, files in os.walk(parent_path):
     for file in files:
         print(path , '---', file)
         cursor_obj.execute(insertsql,(path,file))
+        connection_obj.commit()
 
 # Close the connection
 connection_obj.close()

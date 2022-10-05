@@ -147,6 +147,10 @@ def main():
             service.files().delete(fileId=item['id']).execute()
             app_log.info(f"Deleted {item['name']} from drive")
         app_log.info(f'Completed Page Size of {pageSize}')
+        # Close the connection
+        connection_obj.commit()
+        connection_obj.close()
+
 
     except HttpError as error:
         # TODO(developer) - Handle errors from drive API.
