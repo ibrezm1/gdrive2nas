@@ -13,3 +13,4 @@ This was created for moving files to nas mount, was fed up with open media serve
 * Apart from the files mentioned, we would eventually need credential(from the google oauth/token(generated after first usage) or Serviceaccount(google IAM) json files for this to work correctly
 * Refer [this](https://stackoverflow.com/questions/3287038/cron-and-virtualenv) for sheduling
 * 4 * * * * cd /home/pi/Projects/py-drive && /home/pi/Projects/py-drive/readdrive2.py >> /home/pi/Projects/py-drive/drive-run.log 2>&1
+* Table showcased [here](http://192.168.1.59:8080/table)
