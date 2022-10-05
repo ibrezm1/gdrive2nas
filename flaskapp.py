@@ -27,6 +27,7 @@ def get_db_connection():
 def cat():
     conn = get_db_connection()
     items = conn.execute('SELECT COUNT(id),MAX(Created_time) FROM FILENAMES').fetchall()
+    #names = [description[0] for description in conn.description]
     conn.close()
     return render_template('table.html',  items=items)
 

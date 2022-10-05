@@ -1,9 +1,11 @@
 <table>
-    {% for item in items %}
+
+
+    {% for row in items %}
     <tr>
-        <td>{{item[0]}}</td>
-        <td>{{item[1]}}</td>
-        <td>{{item[2]}}</td>
-        <td>{{item[3]}}</td>
-    </td>
+        {% for cell in row %}
+        <td>{{cell}}</td>
+        {% endfor %}
+    </tr>
     {% endfor %}
+</table>
