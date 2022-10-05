@@ -51,6 +51,8 @@ import shutil
 # https://developers.google.com/drive/api/quickstart/python
 # https://dev.to/ajeebkp23/google-drive-api-access-via-service-account-python-33le
 # https://www.thepythoncode.com/article/using-google-drive--api-in-python
+import sqlite3
+    
 
 
 def downloadfile(drive_service,file_id,new_name):
@@ -81,12 +83,18 @@ def downloadfile(drive_service,file_id,new_name):
         print('Copied')
         os.remove(new_file)
         app_log.info(f'Completed download and move for {new_name}')
-
+    return (naspath,new_name)
 
 def main():
     """Shows basic usage of the Drive v3 API.
     Prints the names and ids of the first 10 files the user has access to.
     """
+    connection_obj = sqlite3.connect('files.db')
+    # cursor object
+    cursor_obj = connection_obj.cursor()
+    insertsql = """ INSERT INTO FILENAMES (File_name, File_path)
+                VALUES(?,?)  
+                """
     creds = None
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -132,7 +140,10 @@ def main():
         print('Files:')
         for item in items:
             print(u'{0} ({1})'.format(item['name'], item['id']))
-            downloadfile(service,item['id'],item['name'])
+            fpath,fname  = downloadfile(service,item['id'],item['name'])
+ 
+            cursor_obj.execute(insertsql,(fpath,fname))
+ 
             service.files().delete(fileId=item['id']).execute()
             app_log.info(f"Deleted {item['name']} from drive")
         app_log.info(f'Completed Page Size of {pageSize}')
