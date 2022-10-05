@@ -96,7 +96,8 @@ def main():
 
         # Reading only files inside the folder 
         id = '11SAYpiK2H4ydZTZs60XNdfCS4AomGwgx'
-        results = service.files().list(q = "'" + id + "' in parents", pageSize=10, fields="nextPageToken, files(id, name)").execute()
+        pageSize = 15
+        results = service.files().list(q = "'" + id + "' in parents", pageSize=pageSize, fields="nextPageToken, files(id, name)").execute()
         items = results.get('files', [])
 
         if not items:
@@ -109,6 +110,7 @@ def main():
             downloadfile(service,item['id'],item['name'])
             service.files().delete(fileId=item['id']).execute()
             logging.info(f"Deleted {item['name']} from drive")
+        logging.info(f'Completed Page Size of {pageSize}')
 
     except HttpError as error:
         # TODO(developer) - Handle errors from drive API.
