@@ -11,6 +11,10 @@ from googleapiclient.http import MediaIoBaseDownload
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
+# Cron entry after sheband and execution bit set 
+# 0 * * * * /home/pi/Projects/py-drive/readdrive2.py >> /home/pi/Projects/py-drive/drive-run.log 2>&1
+# cat /var/log/syslog
+
 
 import glob
 import os
